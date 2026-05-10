@@ -4,7 +4,7 @@ This is a github repo for my COM-437 term project.
 ## Project description
 IDLE-MMO-Manager is an **incremental game** that mimics the daily actions of running a Guild, organizing events, and dispatching your guild members on quests to not only build value in your guild bank, but also gain noteriety, and train your guild members to become stronger. <br>
 
-### What is an Incremental Game?:
+### What is an Incremental Game?
 An incremental game is one that steadily unlocks progress over time. They do not require active game play to increase this progress, instead, they offer an experience that allows a user to set up tasks that are completed over a defined, or indefinite period of time. <br>
 
 They're not intended to be played like traditional games where you sit and focus for extended periods of time. Instead, a user can queue tasks, close/leave the game, and return hours/days later to reap the rewards of their offline progress. <br>
@@ -245,13 +245,13 @@ The Recruitment tab allows the user to review NPC applicants and choose whether 
 | +--------------------------------------------+ |
 | |                                            | |
 | |   [ Member 1 ]                             | |
-| |   stats: STR #  INT #  AGI #               | |
+| |   stats: STR #  INT #  AGI #  WIS #        | |
 | |                                            | |
 | |   [ Member 2 ]                             | |
-| |   stats: STR #  INT #  AGI #               | |
+| |   stats: STR #  INT #  AGI #  WIS #        | |
 | |                                            | |
 | |   [ Member 3 ]                             | |
-| |   stats: STR #  INT #  AGI #               | |
+| |   stats: STR #  INT #  AGI #  WIS #        | |
 | |                                            | |
 | |   [ Confirm Selection ]                    | |
 | |                                            | |
