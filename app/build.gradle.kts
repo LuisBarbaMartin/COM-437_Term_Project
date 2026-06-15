@@ -4,15 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.com_437termproject"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    namespace = "com.luisbarbamartin.guildmanager"
+    compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.com_437termproject"
+        applicationId = "com.luisbarbamartin.guildmanager"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
