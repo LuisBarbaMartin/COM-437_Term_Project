@@ -23,6 +23,15 @@ This app will begin to be developed with Android SDK, for the Android Mobile pla
 I am considering using Java/Kotlin to build the project, but at my current stage in learning, i'm must comfortable with HTML/CSS/JS (vanilla + React), and Python + Flask for constructing websites. If I can find a way to use these languages for the assignment, that would be my preferred method of building the app. <br>
 
 ## Functionality
+IDLE-MMO-Manager allows the user to manage a fantasy guild through multiple app screens. Upon starting the app, the user is presented with a start screen that will allow for a new save, or demo info to be selected. Once inside the game, the user is presented with a dashboard that displays all core information they need to manage their guild. They'll be able to manage their bank (inventory), send Guild Members out on quests to complete, and access the recruitment screen to add new members to their Guild.
+
+## Kotlin vs Java
+Since I am writing this project in Kotlin instead of Java, I will explain in this section how I bridge the concepts from the class to a different language.
+- MainActivity.kt represents the main Android activity.
+- Instead of using setContentView() to load an XML layout, I am using setContent{} to load the Compose user interface. The app screens (Home, Bank, Guild, Quest, Hire (all names subject to change)) are written as compose functions instead of seperate XML layouts.
+- Instead of XML layouts and traditional View objects, the app uses composables like Column, Row, Box, Text, Button, Image, and Card.
+- Instead of using fragments for UI sections, the app uses a screen state system with an AppScreen enum and composable screen functions.
+- lasyColumn is used in lieu of ListView for infinite scrolling on the Guild Bank page.
 
 ## Design (wireframes)
 
