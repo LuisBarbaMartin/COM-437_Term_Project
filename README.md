@@ -31,7 +31,7 @@ Since I am writing this project in Kotlin instead of Java, I will explain in thi
 - Instead of using setContentView() to load an XML layout, I am using setContent{} to load the Compose user interface. The app screens (Home, Bank, Guild, Quest, Hire (all names subject to change)) are written as compose functions instead of seperate XML layouts.
 - Instead of XML layouts and traditional View objects, the app uses composables like Column, Row, Box, Text, Button, Image, and Card.
 - Instead of using fragments for UI sections, the app uses a screen state system with an AppScreen enum and composable screen functions.
-- lasyColumn is used in lieu of ListView for infinite scrolling on the Guild Bank page.
+- lazyColumn is used in lieu of ListView for infinite scrolling on the Guild Bank page.
 
 ## Design (wireframes)
 
