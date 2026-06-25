@@ -1,0 +1,355 @@
+# Feature Notes
+
+These are my working notes for the Kotlin and Compose pieces I used in this project. I am keeping them here so I can explain what the files do and remember why I used certain Android features.
+
+---
+
+# Kotlin And Compose Notes
+
+## `@Composable`
+This marks a function as something Compose can draw on the screen. I use this for screens like `DashboardScreen` and smaller pieces like `QuestCard`.
+
+## `@Preview`
+This lets me check a composable in Android Studio without running the whole app.
+
+```kotlin
+@Preview(showBackground = true)
+@Composable
+fun GuildMemberCardPreview() {
+    COM437TermProjectTheme(darkTheme = false) {
+        GuildMemberCard(member = DemoData.guildMembers[0])
+    }
+}
+```
+
+## `remember`
+This keeps temporary UI state while a composable is on screen. I use it for things like the selected quest, selected sort option, selected item, and whether a bottom sheet is open.
+
+## `mutableStateOf` / `mutableIntStateOf`
+These make values observable by Compose. When the value changes, any UI reading it can redraw. `GameManager` uses this for values like `gold`, `fame`, and `day`.
+
+## `mutableStateListOf`
+This is a Compose-friendly list. I use it in `GameManager` for inventory, guild members, recruits, and the activity log.
+
+## Lazy Layouts
+- `LazyColumn`: vertical scrolling lists.
+- `LazyRow`: horizontal scrolling rows.
+- `LazyVerticalGrid`: grid layout for picking quest members.
+- `items`: loops through a list inside a lazy layout.
+
+## `FilterChip`
+I use these for sorting options because the user is choosing a mode, not pressing a command button.
+
+## `ModalBottomSheet`
+This is the tray that slides up from the bottom of the screen. In `QuestsScreen.kt`, I use it to let the user choose guild members for a quest.
+
+## `ModalNavigationDrawer`
+This is the sidebar that slides in from the left. I integrated this in `GuildManagerApp.kt` to provide a persistent navigation menu across all gameplay screens. It includes options for every screen and a "Return to Start" feature.
+
+## `Button` / `OutlinedButton`
+These are for direct actions, like starting a quest, hiring a recruit, or jumping to another screen.
+
+## `data class`
+I use data classes for objects that mainly store information, like `GuildMember`, `Quest`, `InventoryItem`, `GameState`, and `QuestResult`.
+
+## `enum class`
+Enums are used when I have a fixed list of choices, like screens, member classes, races, titles, zodiac signs, member status, and sort options.
+
+## `object`
+An `object` is a singleton. I use this for shared project-wide helpers or data holders, such as `GameManager`, `DemoData`, `NewGameData`, `Quests`, and `QuestManager`.
+
+## Collection Methods I Used
+- `listOf(...)`: makes a list.
+- `emptyList()`: makes an empty list.
+- `filter { ... }`: keeps matching items.
+- `map { ... }`: transforms each item.
+- `sumOf { ... }`: totals values from a list.
+- `sortedBy { ... }`: sorts low to high.
+- `sortedByDescending { ... }`: sorts high to low.
+- `sortedWith(...)`: custom sorting.
+- `chunked(size)`: splits a list into rows/groups.
+- `joinToString { ... }`: turns a list into readable text.
+- `firstOrNull { ... }`: finds the first match or returns null.
+- `count { ... }`: counts matching items.
+
+## Scope Functions I Used
+- `apply { ... }`: changes an object and returns it.
+- `also { ... }`: does an extra step and returns the same object.
+- `let { ... }`: runs code when an optional value exists.
+
+## File Saving
+`SaveManager.kt` uses `Gson` to turn `GameState` into JSON and save it to `save_game.json`. It also reads that file back when the app starts.
+
+## Callbacks
+Several composables take functions like `onNavigate`, `onClick`, `onStartQuestClick`, or `onHireClick`. This lets reusable UI pieces tell the screen when the user did something.
+
+---
+
+# Data Flow Notes
+
+## Quest Flow
+```text
+Quests.kt
+defines quest data
+        ->
+QuestsScreen.kt
+user picks a quest and party members, then starts an active quest timer
+        ->
+GameManager.kt
+tracks the active quest until the timer finishes
+        ->
+QuestManager.kt
+calculates success, XP, gold, and fame
+        ->
+QuestResult.kt
+stores the result
+        ->
+GameManager.kt
+updates gold, fame, member state, and activity log
+```
+
+## Save/Load Flow
+```text
+MainActivity.kt
+loads saved game on app start
+        ->
+SaveManager.kt
+reads save_game.json if it exists
+        ->
+GameManager.kt
+receives loaded GameState
+
+Auto-Save Triggers
+(QuestsScreen / RecruitmentScreen)
+        ->
+SaveManager.kt
+saves current GameState after key actions
+
+MainActivity.onStop()
+        ->
+SaveManager.kt
+saves GameManager.toGameState()
+```
+
+---
+
+# Project Files
+
+## Root Files
+
+### `README.md`
+Project description, goals, wireframes, and glossary.
+
+### `Feature Notes.md`
+My notes for explaining the project files and Kotlin/Compose features I used.
+
+### `build.gradle.kts`
+Top-level Gradle setup. Mostly generated by Android Studio.
+
+### `settings.gradle.kts`
+Names the project and includes the `app` module. Mostly generated by Android Studio.
+
+### `gradle.properties`
+Gradle/Kotlin settings. I have not changed much here.
+
+### `gradlew` / `gradlew.bat`
+Gradle wrapper scripts. These are generated files. Note: `gradlew.bat` currently has a local empty-classpath issue, so I have been using `java -jar gradle\wrapper\gradle-wrapper.jar test`.
+
+### `gradle/libs.versions.toml`
+Dependency and plugin versions for Android, Kotlin, Compose, testing libraries, and Gson.
+
+---
+
+# App Module Files
+
+## `app/build.gradle.kts`
+App-level Gradle setup. This is where Compose is enabled, SDK versions are set, and dependencies are added.
+
+## `app/src/main/AndroidManifest.xml`
+Android app setup: launcher activity, app icon, app theme, and notification permission.
+
+---
+
+# Main Kotlin Files
+
+## `MainActivity.kt`
+The app entry point. It creates `SaveManager`, loads saved game data into `GameManager`, applies the theme, and shows `GuildManagerApp`. It saves when the app stops.
+
+## `GuildManagerApp.kt`
+Controls which screen is currently shown. It also wraps the app in a themed `Surface` so background/text colors come from the Compose theme.
+
+## `AppScreen.kt`
+List of the main screens in the app.
+
+---
+
+# Data Files
+
+## `data/NewGameData.kt`
+Builds the blank new-game `GameState`. It starts with one guide member, no bank items, no recruits, no active quests, and starting gold/fame values.
+
+## `data/DemoData.kt`
+Pulls together the populated demo lists and builds the test/demo `GameState`.
+
+## `data/InventoryItems.kt`
+Starter inventory item definitions.
+
+## `data/GuildMembers.kt`
+Starting guild member definitions.
+
+## `data/Recruits.kt`
+Recruit definitions.
+
+## `data/ActivityLogs.kt`
+Opening activity log messages.
+
+## `data/Quests.kt`
+Quest definitions. I moved quests here from the sample/demo data file. Each quest has its own `difficultyTarget`, so the quest data controls how hard it is.
+
+---
+
+# Manager Files
+
+## `managers/GameManager.kt`
+The live game state while the app is running. It tracks gold, fame, day, inventory, guild members, recruits, active quests, and the activity log.
+
+## `managers/QuestManager.kt`
+Runs the quest result math. It takes a quest and party, rolls a random value, checks against `quest.difficultyTarget`, updates member XP/status, and returns a `QuestResult`.
+
+## `managers/SaveManager.kt`
+Saves and loads `GameState` using JSON.
+
+## `managers/GuildNotificationManager.kt`
+Notification helper for quest and recruitment alerts. This exists, but it is not fully connected to gameplay yet.
+
+---
+
+# Model Files
+
+## `models/GameState.kt`
+The save-file shape for the game: members, recruits, inventory, active quests, gold, fame, day, and activity log.
+
+## `models/GuildMember.kt`
+Data for a guild member, including level, XP, class, race, zodiac sign, stats, title, status (using the `MemberStatus` enum), equipment, modifiers, power, and level-up behavior.
+
+## `models/MemberStatus.kt`
+Defines the `MemberStatus` enum (`Available`, `OnQuest`, `Resting`, `Injured`) to ensure type-safe member tracking throughout the app.
+
+## `models/InventoryItem.kt`
+Data for an inventory item, including value, rarity, class restriction, image, and optional stat bonuses.
+
+## `models/Quest.kt`
+Data for a quest, including rewards, max party size, duration, difficulty label, and the numeric target needed to succeed.
+
+## `models/ActiveQuest.kt`
+Data for a quest that is currently running, including the quest id, assigned member ids, start time, and finish time.
+
+## `models/QuestResult.kt`
+The result from running a quest: success/failure, final score, roll, target, rewards, and updated party.
+
+## `models/MemberStats.kt`
+Stats and modifiers for members. This file also has the `plus` operators that let stats/modifiers be added together.
+
+## `models/ZodiacSign.kt`
+Zodiac sign data and bonuses.
+
+## `models/Race.kt`
+Available fantasy races.
+
+## `models/JobClass.kt`
+Available member classes and item class restrictions.
+
+## `models/MemberTitle.kt`
+Optional titles for members.
+
+---
+
+# Screen Files
+
+## `screens/StartScreen.kt`
+Opening screen with background art, title, start/demo buttons, and course info.
+
+## `screens/DashboardScreen.kt`
+Guild overview with stats, recent activity, and quick buttons.
+
+## `screens/GuildBankScreen.kt`
+Inventory screen. It sorts items and shows details for the selected item.
+
+## `screens/MembersScreen.kt`
+Guild roster screen. It sorts and displays recruited members.
+
+## `screens/QuestsScreen.kt`
+Quest board screen. It sorts quests, expands quest details, lets the user assign members, and starts quests.
+
+## `screens/RecruitmentScreen.kt`
+Recruit screen. It sorts recruits and lets the user add one to the guild.
+
+---
+
+# Component Files
+
+## `components/TopStatusBar.kt`
+Top bar for guild name, fame, and gold. It also contains the hamburger menu icon that toggles the navigation drawer.
+
+## `components/BottomNavBar.kt`
+Bottom navigation row.
+
+## `components/GuildMemberCard.kt`
+Card for displaying one guild member.
+
+## `components/InventoryItemCard.kt`
+Inventory item card and item details panel.
+
+## `components/QuestCard.kt`
+Quest card and expanded quest details panel.
+
+## `components/MemberSelectionPanel.kt`
+Grid of members used by the quest assignment bottom sheet.
+
+---
+
+# Theme Files
+
+## `ui/theme/Color.kt`
+Project colors such as gold, leather brown, parchment, ink black, success green, and error red.
+
+## `ui/theme/Theme.kt`
+Light and dark Material 3 color schemes.
+
+## `ui/theme/Type.kt`
+Custom Suse font setup and typography styles.
+
+---
+
+# Resource Files
+
+## `res/drawable/`
+Artwork and icons used by the app.
+
+## `res/font/`
+Custom Suse font files.
+
+## `res/mipmap-*`
+Launcher icons generated by Android Studio.
+
+## `res/values/strings.xml`
+String resources, including app name.
+
+## `res/values/colors.xml`
+Default XML color file. The Compose UI mostly uses `ui/theme/Color.kt` instead.
+
+## `res/values/themes.xml`
+Base XML theme. Compose handles most of the app styling.
+
+## `res/xml/backup_rules.xml` And `res/xml/data_extraction_rules.xml`
+Default Android backup/data extraction files.
+
+---
+
+# Test Files
+
+## `app/src/test/kotlin/.../ExampleUnitTest.kt`
+Default local unit test. It still needs to be replaced with real tests for quest results, leveling, recruitment, and saving.
+
+## `app/src/androidTest/kotlin/.../ExampleInstrumentedTest.kt`
+Default Android instrumentation test. It checks the app package name.

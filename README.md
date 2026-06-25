@@ -1,5 +1,5 @@
 # COM-437-26SU1-TermProject
-This is a github repo for my COM-437 term project.
+This is a GitHub repo for my COM-437 term project.
 
 ## Project description
 IDLE-MMO-Manager is an **incremental game** that mimics the daily actions of running a Guild, organizing events, and dispatching your guild members on quests to not only build value in your guild bank, but also gain noteriety, and train your guild members to become stronger. <br>
@@ -317,3 +317,362 @@ Incremental Game - An incremental game is a video game subgenre characterized by
 MMO - A massively multiplayer online (MMO) game, sometimes referred to as an MMOG, is an online video game with a large number of players to interact in the same online game world. <br>
 
 MMORPG - A massively multiplayer online role-playing game (MMORPG) is a video game that combines aspects of a role-playing video game and a massively multiplayer online game (see MMO).  <br>
+
+------------------------------
+
+# Guild Manager App Architecture (The Technical Section)
+
+My app is an Android based (kotlin) Guild Management game styled after the incremental game genre.
+
+The Player can start a new save file, or load the Demo file for exhibition purposes.
+
+## Selling This App
+This is an incremental style game, encouraging players to use it for a small amount of time daily, sending their units out to complete tasks, and the user will then return to reap the rewards, and send their units back out on repeat.
+
+### Things that need to be addressed for full functionality
+
+## Main Idea
+
+This app is organized into a few main parts that work together. The app starts through the main Android activity, which loads the rest of the project. From there, the user sees the different screens made with Jetpack Compose (as opposed to using Fragments in pure Java), such as the dashboard, members screen, quests screen, and guild bank.
+
+The app also has manager files that handle the main game actions. These keep track of things like the guild’s members, gold, fame, quests, saving and loading data, notifications, and quest completion.
+
+The model files define what the main objects are, such as guild members, inventory items, quests, and the overall game state. Finally, the data files hold the starter content for the game, including sample recruits, items, quests, and the beginning state of the guild.
+
+```mermaid
+flowchart TD
+    MainActivity["MainActivity"] --> SaveManager["SaveManager"]
+    SaveManager --> SQLite["SQLite database"]
+    SaveManager --> GameManager["GameManager"]
+    MainActivity --> GuildManagerApp["GuildManagerApp"]
+    GuildManagerApp --> Screens["Compose screens"]
+    Screens --> GameManager
+    Screens --> SaveManager
+    GameManager --> QuestManager["QuestManager"]
+    GameManager --> QuestAlarmScheduler["QuestAlarmScheduler"]
+    QuestAlarmScheduler --> QuestCompletionReceiver["QuestCompletionReceiver"]
+    QuestCompletionReceiver --> SaveManager
+    QuestCompletionReceiver --> GuildNotificationManager["GuildNotificationManager"]
+```
+
+## Android Entry Points
+
+### `MainActivity.kt`
+
+`MainActivity` is the main Android activity. Android opens it when the user taps the app icon or taps a notification.
+
+It:
+
+- creates `SaveManager`
+- creates `GuildNotificationManager`
+- creates `QuestAlarmScheduler`
+- creates the notification channel
+- asks for notification permission on Android 13+
+- loads saved data from SQLite
+- falls back to `NewGameData` when no save exists
+- completes overdue quests after loading
+- schedules the next quest-completion alarm
+- starts the Compose UI with `GuildManagerApp`
+
+When the app becomes invisible, `onStop()` saves the current state and reschedules quest alarms.
+
+### `QuestCompletionReceiver.kt`
+
+`QuestCompletionReceiver` is a `BroadcastReceiver`. It runs when Android delivers a scheduled quest alarm while the app is not visible.
+
+It:
+
+- loads saved game data
+- puts it into `GameManager`
+- completes finished quests
+- sends notifications
+- saves updated game state
+- schedules the next quest alarm
+
+This is what lets quests keep progressing while the app is closed or in the background.
+
+## App Shell
+
+### `GuildManagerApp.kt`
+
+`GuildManagerApp` is the main Compose shell. It owns the current screen state using `AppScreen`.
+
+This code controls:
+
+- current screen
+- navigation drawer/sidebar
+- Save Game menu item
+- screen navigation
+- in-app quest completion checks while the app is open
+
+The app uses `AppScreen` instead of fragments. Each enum value maps to one screen: `Start`, `Dashboard`, `GuildBank`, `Members`, `Equipment`, `Quests`, `Recruitment`, and `Settings`.
+
+## Game State And Logic
+
+### `GameManager.kt`
+
+`GameManager` is the live in-memory state for the game.
+
+It stores:
+
+- guild name
+- gold
+- fame
+- inventory
+- guild members
+- recruits
+- active quests
+- activity log
+
+It also performs game actions:
+
+- `toGameState()` creates a saveable snapshot.
+- `fromGameState()` loads saved data into live state.
+- `startQuest()` starts a timed quest.
+- `equipItem()` equips an inventory item to a member.
+- `unequipItem()` returns equipment to inventory.
+- `completeFinishedQuests()` resolves quests whose timers ended.
+
+### `QuestManager.kt`
+
+`QuestManager` calculates quest results. `GameManager` uses it when completing a quest, then applies rewards, updates members, writes activity logs, and removes the active quest.
+
+## Persistence
+
+### `SaveManager.kt`
+
+`SaveManager` extends `SQLiteOpenHelper` and manages the app's local SQLite database:
+
+```text
+guild_manager.db
+```
+
+It creates tables for:
+
+- `game_state`
+- `guild_members`
+- `saved_items`
+- `active_quests`
+- `active_quest_members`
+- `activity_log`
+
+Save flow:
+
+```mermaid
+flowchart LR
+    GameManager["GameManager"] --> Snapshot["GameState"]
+    Snapshot --> SaveManager["SaveManager.saveGame()"]
+    SaveManager --> SQLite["guild_manager.db"]
+```
+
+Load flow:
+
+```mermaid
+flowchart LR
+    SQLite["guild_manager.db"] --> SaveManager["SaveManager.loadGame()"]
+    SaveManager --> GameState["GameState"]
+    GameState --> GameManager["GameManager.fromGameState()"]
+```
+
+SQLite will store the changes in player progress. Kotlin data files store static built-in content.
+
+## Background Quest Progress
+
+### `QuestAlarmScheduler.kt`
+
+`QuestAlarmScheduler` uses Android `AlarmManager` to wake the app when the next quest should finish.
+
+When a quest starts:
+
+1. `QuestsScreen` calls `GameManager.startQuest(...)`.
+2. The game saves through `SaveManager`.
+3. `QuestAlarmScheduler` schedules the next quest completion.
+4. Android wakes `QuestCompletionReceiver`.
+5. The receiver completes quests, saves, and sends notifications.
+
+This is not a raw Android `Service`. Timed alarm work fits this app better than continuous background service work.
+
+## Notifications
+
+### `GuildNotificationManager.kt`
+
+`GuildNotificationManager` creates the notification channel and posts quest/recruitment notifications.
+
+Notifications include a `PendingIntent`. Tapping a notification opens `MainActivity` and routes the app to the Dashboard.
+
+## Screens
+
+### `StartScreen.kt`
+
+Lets the user create a guild or load demo data. It uses `NewGameData` or `DemoData`, loads that into `GameManager`, saves, then navigates to Dashboard.
+
+### `DashboardScreen.kt`
+
+Shows the main overview:
+
+- member count
+- available members
+- active quest count
+- quests in progress
+- recent activity log
+- navigation buttons
+
+It uses the shared `ActiveQuestList` component.
+
+### `QuestsScreen.kt`
+
+Shows available quests from the `Quests.all` list index. The user can sort quests, select a quest, assign party members, and start the quest.
+
+Starting a quest updates `GameManager`, saves to SQLite, and schedules the background alarm.
+
+### `MembersScreen.kt`
+
+Shows recruited guild members. The user can sort members, tap a member card to expand details, and open equipment management.
+
+### `EquipmentScreen.kt`
+
+Lets the user equip and unequip items for one member. It updates `GameManager` and saves after equipment changes.
+
+### `GuildBankScreen.kt`
+
+Shows inventory items from `GameManager.inventoryItems`. The user can sort items, tap item icons, and view item details.
+
+### `RecruitmentScreen.kt`
+
+Shows available recruits. Hiring a recruit moves them from `GameManager.recruits` to `GameManager.guildMembers`, adds a log entry, and saves.
+
+### `Settings.kt`
+
+Shows current game/save information and settings-style panels.
+
+## Shared Components
+
+The `components` package contains reusable UI pieces:
+
+- `AdaptiveScreenScaffold`
+- `TopStatusBar`
+- `HeaderBanner`
+- `SortChipRow`
+- `SelectableCard`
+- `GuildMemberCard`
+- `InventoryItemCard`
+- `QuestCard`
+- `ActiveQuestList`
+- `MemberSelectionPanel`
+
+`SelectableCard` and `toggledSelection(...)` keep tap-to-select behavior consistent across cards and screens.
+
+## Models
+
+The `models` package defines data types used across the app:
+
+- `GameState`
+- `GuildMember`
+- `InventoryItem`
+- `Quest`
+- `ActiveQuest`
+- `QuestResult`
+- `MemberStats`
+- `MemberModifier`
+- `JobClass`
+- `Race`
+- `ZodiacSign`
+- `MemberStatus`
+- `MemberTitle`
+- `ItemType`
+- `EquipmentSlot`
+- `WeaponHand`
+- `MainHandGrip`
+
+## Static Data Files
+
+The `data` package contains built-in content:
+
+- `NewGameData.kt`
+- `DemoData.kt`
+- `Quests.kt`
+- `InventoryItems.kt`
+- `Recruits.kt`
+- `GuildMembers.kt`
+- `ActivityLogs.kt`
+
+These files are compiled into the app. They are not the save database.
+
+## Important Flows
+
+### New Game
+
+```mermaid
+flowchart TD
+    StartScreen["StartScreen"] --> NewGameData["NewGameData.getInitialState()"]
+    NewGameData --> GameManager["GameManager.fromGameState()"]
+    GameManager --> SaveManager["SaveManager.saveGame()"]
+    SaveManager --> Dashboard["Dashboard"]
+```
+
+### Start Quest
+
+```mermaid
+flowchart TD
+    QuestsScreen["QuestsScreen"] --> GameManager["GameManager.startQuest()"]
+    GameManager --> SaveManager["SaveManager.saveGame()"]
+    SaveManager --> Alarm["QuestAlarmScheduler.scheduleNextQuestCompletion()"]
+```
+
+### Complete Quest While App Is Closed
+
+```mermaid
+flowchart TD
+    Alarm["Android AlarmManager"] --> Receiver["QuestCompletionReceiver"]
+    Receiver --> Load["SaveManager.loadGame()"]
+    Load --> GameManager["GameManager.fromGameState()"]
+    GameManager --> Complete["GameManager.completeFinishedQuests()"]
+    Complete --> Notify["GuildNotificationManager"]
+    Complete --> Save["SaveManager.saveGame()"]
+```
+
+## Summary
+
+The app keeps live gameplay state in `GameManager`, saves durable progress through `SaveManager` and SQLite, renders UI through Compose screens, and uses Android alarms plus a broadcast receiver so timed quests keep working when the app is not visible.
+
+----------------------
+
+# Changelog
+
+## Added
+
+- Added SQLite-backed saving through `SaveManager`, replacing the earlier JSON-only save approach.
+    - (previously used exclusively kotlin data files for this)
+- Added tables for game state, guild members, recruits, inventory/equipped items, active quests, quest party members, and activity log entries.
+- Added background quest completion with `QuestAlarmScheduler` and `QuestCompletionReceiver`.
+- Added Android notification support for completed quests and recruitment events.
+- Added notification tap behavior that opens the app to the Dashboard.
+- Added Dashboard display for active quests in progress.
+- Added a sidebar `Save Game` action with a confirmation toast.
+- Added `EquipmentScreen` for equipping and unequipping guild member items.
+- Added expanded guild member cards that show detailed stats and equipment management.
+- Added shared `SelectableCard` and `toggledSelection(...)` helpers for reusable card selection behavior.
+- Added shared `ActiveQuestList` component for displaying quest progress on multiple screens.
+- Added app icon and updated image resources, including `.webp` item, zodiac, member, and start-screen assets.
+
+## Changed
+
+- Updated `MainActivity` to load saved SQLite data on startup and save current state on `onStop()`.
+- Updated app launch behavior so notification launches can route directly to the Dashboard.
+- Updated `GuildManagerApp` to handle screen navigation, save menu behavior, quest completion checks, and quest alarm scheduling.
+- Updated quest flow so starting a quest saves immediately and schedules the next completion alarm.
+- Updated quest completion flow so rewards, logs, notifications, and saves happen when quests finish.
+- Updated `DashboardScreen` to show active quest progress in addition to guild summary stats and recent events.
+- Updated `QuestsScreen` to reuse shared active quest UI instead of owning duplicate progress-card code.
+- Updated `MembersScreen` so tapping a member expands/collapses that member's details.
+- Updated `GuildMemberCard` so collapsed cards show portrait/name/title plus level, class, race, and power; expanded cards show full stats and equipment controls.
+- Updated `InventoryItemCard` to use the reusable selectable card shell.
+- Updated resources from PNG to WebP for many drawable assets.
+- Updated adaptive launcher icon resources and added app icon assets.
+
+## Changes Needed for 100% Functionality (outside of the project scope)
+- Recruitment: Add a system to check the Users current Fame level, and assign minimum required fame levels to recruits. Recruits should be attracted to a Guild with Fame/Noteriety, and more valuable Recruits will appear as Fame level increases
+- Fame: Convert current `Int` only based tracking into an "experience"/level system to more easily set required fame level for Recruits.
+- Add more items/Recruits for a more robust experience.
+- Add items to Quest rewards."
+- Add repeatable Quests. Repeatable in this context meaning that the quest auto-repeats upon completion. Think "Send your Guild Member out on a task to collect herbs", as opposed to "Send your Guild Memeber out to help a local merchant travel safely."
