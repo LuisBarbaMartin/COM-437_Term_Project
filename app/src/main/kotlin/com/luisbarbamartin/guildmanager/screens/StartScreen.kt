@@ -1,0 +1,155 @@
+package com.luisbarbamartin.guildmanager.screens
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.luisbarbamartin.guildmanager.R
+import com.luisbarbamartin.guildmanager.ui.theme.COM437TermProjectTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+
+@Composable
+fun StartScreen(
+    onCreateGuildClick: (String) -> Unit,
+    onDemoClick: () -> Unit,
+
+) {
+    var showGuildNameEntry by remember { mutableStateOf(false) }
+    var guildName by remember { mutableStateOf("") }
+
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.start_screen),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            /* FillBounds okay for now while I use a background with blank space. Will need to be
+            changed to ContentScale.Crop once I use fully colored artwork */
+            contentScale = ContentScale.FillBounds
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f),
+                    shape = RoundedCornerShape(16.dp)
+                )
+                .padding(24.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.weight(1f))
+
+            Text(
+                text = "Guild Manager",
+                style = MaterialTheme.typography.headlineLarge
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Create your guild, recruit members, build fame, and send them on quests.",
+                style = MaterialTheme.typography.bodyLarge
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            if (!showGuildNameEntry) {
+                Button(
+                    onClick = { showGuildNameEntry = true }
+                ) {
+                    Text("Start your Journey")
+                }
+            }
+
+            if (showGuildNameEntry) {
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = guildName,
+                    onValueChange = { guildName = it },
+                    label = { Text("Guild Name") },
+                    singleLine = true
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = { onCreateGuildClick(guildName.trim()) },
+                    enabled = guildName.trim().isNotEmpty()
+                ) {
+                    Text("Create Guild")
+                }
+
+                OutlinedButton(
+                    onClick = {
+                        showGuildNameEntry = false
+                        guildName = ""
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+
+            if (!showGuildNameEntry) {
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedButton(
+                    onClick = onDemoClick
+                ) {
+                    Text("View Demo Version")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = """
+                COM-437 Term Project
+                Luis Barba-Martin
+                2026 Summer 1
+                Instructor Justin Litz
+            """.trimIndent(),
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun StartScreenPreview() {
+    COM437TermProjectTheme(
+        darkTheme = false
+    ) {
+        StartScreen(
+            onCreateGuildClick = {},
+            onDemoClick = {}
+        )
+    }
+}
