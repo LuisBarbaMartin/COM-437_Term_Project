@@ -17,23 +17,27 @@ The project is designed for players who still enjoy game worlds and RPG progress
 The app is built for Android using Kotlin. The course is based on Android mobile development, so Android is the primary platform for development, testing, and deployment.
 
 ## Front/Back end support
+
+### Front End
 This app uses Jetpack Compose instead of Java Fragments for the front end. 
 
 The front end is contained within 2 folders:
 - components
 - screens
 
-The back end is currently supported with static data being held in kotlin files, SQLite and a combination of the `GameManager.kt` and `SaveManager.kt` to manage persistence and data during runtime.
-
-### Components
+#### Components
 
 The Components folder holds one-time-use and reusable screen components that the app uses to draw screens. For example, `TopStatusBar.kt` pulls and displays the Guild Name, Gold, Fame, as well as holding a place for the Sidebar menu at the top left.
 
-### Screens
+#### Screens
 This is where all the screens are laid out via `@Composable` functions, replacing XML files and Fragments. Jetpack Composes uses these functions to 
 create what the user sees.
 
 Screens are also managed by the `GuildManagerApp.kt` file, and use an enum stored in `models/AppScreen.kt` to easily assign a file from `/screens` to the appropriate display within the code.
+
+### Back End
+
+The back end is currently supported with static data being held in kotlin files, SQLite and a combination of the `GameManager.kt` and `SaveManager.kt` to manage persistence and data during runtime.
 
 ## Functionality
 
