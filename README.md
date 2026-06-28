@@ -45,78 +45,286 @@ Screens are also managed by the `GuildManagerApp.kt` file, and use an enum store
 - send members on timed quests
 - recruit new guild members
 - save and load local progress
+- 
+## Design (wireframes)
 
-## Design (screenshots)
-
-The current screens below replace the original wireframes and show the implemented user interface. All screenshots are stored in the `images` folder.
+For an updated view of the design, please see the Project wiki at: https://github.com/LuisBarbaMartin/COM-437_Term_Project/wiki
 
 ### Screen 1: Start Screen
 
-<img src="images/start_screen.png" alt="Start Screen" width="320">
-
-The landing screen is the first view users see when launching the app. It establishes the guild-management theme and provides the entry point into the game.
+```text
++------------------------------------------------+
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                  +----------+                  |
+|                  |  START   |                  |
+|                  +----------+                  |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
++------------------------------------------------+
+```
+The landing screen users will see when they first start the app. There will be artwork displayed here establishing the theme/lore of the app. <br>
 
 ### Screen 2: Dashboard
+```
++------------------------------------------------+
+| guild_name          fame: #        currency: # |
++------------------------------------------------+
+| active_quest_focus_panel                       |
+|                                                |
+|                                                |
+|                                                |
++------------------------------------------------+
+| roster                                         |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
++------------------------------------------------+
+| guild bank  |  members  |  quests  | recruit   |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
++------------------------------------------------+
+```
+This will be the first screen users will see after passing the Start Screen. <br>
+This screen will display the Guild name the user chose, as well as their total fame or fame level (to be determined), and their total currency. <br>
 
-<img src="images/dashboard.png" alt="Dashboard" width="320">
+A row of menu navigation tables are visible at the bottom of the screen, allowing the user to navigate the various panels required to use the app. <br>
 
-The Dashboard is the first screen users see after the Start Screen. It shows guild-level status, active progress, roster information, and bottom navigation for the main app sections.
-
-<img src="images/dashboard_with_quest_results_and_new_recruit.png" alt="Dashboard with quest results and new recruit" width="320">
-
-The Dashboard also surfaces important updates, such as completed quest results and newly recruited members, so players can quickly understand what changed since their last action.
 
 ### Screen 3: Guild Bank Tab
-
-<img src="images/guildbank_inventory.png" alt="Guild Bank inventory" width="320">
-
-The Guild Bank displays the guild inventory as a grid of items. Players can review collected equipment and resources from this screen.
-
-<img src="images/guildbank_inventory_item_expanded.png" alt="Expanded Guild Bank inventory item" width="320">
-
-Tapping an inventory item expands its details so the player can inspect item stats and understand how it may help the guild.
+```
++------------------------------------------------+
+| guild_name          fame: #        currency: # |
++------------------------------------------------+
+| guild_bank                                     |
+|                                                |
+| +--------------------------------------------+ |
+| |                                            | |
+| |       grid-based inventory system          | |
+| |       with organizable tabs                | |
+| |                                            | |
+| |       weapons | armor | items | misc       | |
+| |                                            | |
+| |                                            | |
+| |                                            | |
+| +--------------------------------------------+ |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
++------------------------------------------------+
+| guild bank  |  members  |  quests  | recruit   |
++------------------------------------------------+
+```
+The Guild Bank tab displays the guild inventory.  <br>
+Items will be shown in a grid layout and organized into categories such as weapons, armor, items, and miscellaneous items. <br>
 
 ### Screen 4: Members Tab
-
-<img src="images/guild_screen_roster.png" alt="Guild roster" width="320">
-
-The Members tab shows the recruited guild roster. Players can scroll through available members and review each member at a glance.
-
-<img src="images/guild_screen_roster_card_expanded.png" alt="Expanded guild roster member card" width="320">
-
-Tapping a member expands their card with additional details, including stats and member-specific information.
-
-<img src="images/guild_screen_roster_member_equip_screen.png" alt="Guild member equipment screen" width="320">
-
-The equipment screen lets the player manage gear for a selected guild member and compare available inventory against equipped items.
+```
++------------------------------------------------+
+| guild_name          fame: #        currency: # |
++------------------------------------------------+
+| members                                        |
+|                                                |
+| +--------------------------------------------+ |
+| |                                            | |
+| |   scrolling roster of recruited guild      | |
+| |   members                                  | |
+| |                                            | |
+| |   [ Member 1 ]                             | |
+| |   [ Member 2 ]                             | |
+| |   [ Member 3 ]                             | |
+| |                                            | |
+| |   tapping a member opens customization     | |
+| |                                            | |
+| |                                            | |
+| |                                            | |
+| +--------------------------------------------+ |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
++------------------------------------------------+
+| guild bank  |  members  |  quests  | recruit   |
++------------------------------------------------+
+```
+The Members tab allows the user to view all recruited guild members. Tapping a member opens their customization or detail panel. <br>
 
 ### Screen 5: Quests Tab
+```
++------------------------------------------------+
+| guild_name          fame: #        currency: # |
++------------------------------------------------+
+| quests                                         |
+|                                                |
+| +--------------------------------------------+ |
+| |                                            | |
+| |   scrollable list of available quests      | |
+| |                                            | |
+| |   [ Quest 1 ]                              | |
+| |   [ Quest 2 ]                              | |
+| |   [ Quest 3 ]                              | |
+| |                                            | |
+| |   tapping a quest expands details, stat    | |
+| |   requirements, rewards, and member slots  | |
+| |                                            | |
+| |                                            | |
+| |                                            | |
+| |                                            | |
+| +--------------------------------------------+ |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
 
-<img src="images/quest_screen.png" alt="Quest list" width="320">
-
-The Quests tab displays available quests. The user can review quest options and choose a quest to inspect more closely.
-
-<img src="images/quest_screen_expanded.png" alt="Expanded quest details" width="320">
-
-Tapping a quest expands its details, requirements, rewards, and party assignment area.
-
-<img src="images/quest_screen_expanded_members_assigned.png" alt="Quest with members assigned" width="320">
-
-After selecting guild members, the quest card shows assigned members and prepares the quest for dispatch.
-
-<img src="images/quest_screen_quest_in_progress.png" alt="Quest in progress" width="320">
-
-Once dispatched, the quest moves into an in-progress state so the player can track active guild activity from the quest flow.
++------------------------------------------------+
+| guild bank  |  members  |  quests  | recruit   |
++------------------------------------------------+
+```
+The Quests tab displays available quests. The user can review quest details, requirements, rewards, and assign guild members to quest slots. <br>
 
 ### Screen 6: Recruitment Tab
+```
++------------------------------------------------+
+| guild_name          fame: #        currency: # |
++------------------------------------------------+
+| recruitment                                    |
+|                                                |
+| +--------------------------------------------+ |
+| |                                            | |
+| |   as guild fame increases, more NPC        | |
+| |   applicants become available              | |
+| |                                            | |
+| |   [ Applicant 1 ]                          | |
+| |   [ Applicant 2 ]                          | |
+| |   [ Applicant 3 ]                          | |
+| |                                            | |
+| |   view stats, traits, and preferences      | |
+| |                                            | |
+| |   [ Accept ]                [ Decline ]    | |
+| |                                            | |
+| +--------------------------------------------+ |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
++------------------------------------------------+
+| guild bank  |  members  |  quests  | recruit   |
++------------------------------------------------+
+```
+The Recruitment tab allows the user to review NPC applicants and choose whether to accept or decline them. Recruiting members helps the guild grow and complete harder quests. <br>
 
-<img src="images/recruit_screen.png" alt="Recruitment screen" width="320">
+### Screen 7: Member Selection/Dispatch Screen
+```
++------------------------------------------------+
+| guild_name          fame: #        currency: # |
++------------------------------------------------+
+| select member for quest                        |
+|                                                |
+| +--------------------------------------------+ |
+| |                                            | |
+| |   [ Member 1 ]                             | |
+| |   stats: STR #  INT #  AGI #  WIS #        | |
+| |                                            | |
+| |   [ Member 2 ]                             | |
+| |   stats: STR #  INT #  AGI #  WIS #        | |
+| |                                            | |
+| |   [ Member 3 ]                             | |
+| |   stats: STR #  INT #  AGI #  WIS #        | |
+| |                                            | |
+| |   [ Confirm Selection ]                    | |
+| |                                            | |
+| +--------------------------------------------+ |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
+|                                                |
++------------------------------------------------+
+| guild bank  |  members  |  quests  | recruit   |
++------------------------------------------------+
+```
+The Member Selection screen appears when the user chooses a quest slot. It allows the user to select which guild member should be dispatched. <br>
 
-The Recruitment tab allows the user to review NPC applicants and decide whether to add them to the guild roster.
-
-<img src="images/recruit_screen_expanded.png" alt="Expanded recruitment member card" width="320">
-
-Tapping a potential recruit expands the applicant card with additional information before the player accepts or declines them.
+### Screen 8: Member Customization Panel
+```
++------------------------------------------------+
+| guild_name          fame: #        currency: # |
++------------------------------------------------+
+| member details                                 |
+|                                                |
+| +--------------------------------------------+ |
+| | name: Member Name                          | |
+| | class/type: Member Class                   | |
+| | level: #                                   | |
+| |                                            | |
+| | stats:                                     | |
+| | STR: #                                     | |
+| | INT: #                                     | |
+| | AGI: #                                     | |
+| | WIS: #                                     | |
+| |                                            | |
+| | equipment:                                 | |
+| | weapon: item name                          | |
+| | armor: item name                           | |
+| | accessory: item name                       | |
+| |                                            | |
+| | [ Customize ]              [ Back ]        | |
+| |                                            | |
+| +--------------------------------------------+ |
+|                                                |
++------------------------------------------------+
+| guild bank  |  members  |  quests  | recruit   |
++------------------------------------------------+
+```
+The Member Customization panel displays information about a selected guild member, including stats, level, class, and equipment. <br>
 
 ## User Flow
 
